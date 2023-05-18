@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: ./.docker/web
+    volumes:
+      - ./www:/var/www
+    ports:
+      - 88:80
+  db:
+    build:
+      context: ./.docker/db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./.docker/db/sqls:/docker-entrypoint-initdb.d
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #     - PMA_HOST=db
+  #     - PMA_USER=root
+  #     - PMA_PASSWORD=password
+  #   links:
+  #     - db
+  #   ports:
+  #     - 4040:80
+  #   volumes:
+  #     - ./.docker/phpmyadmin/sessions:/sessions
