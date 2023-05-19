@@ -1,10 +1,10 @@
-FROM php:5.6-apache
+FROM php:5.3-apache
 
-ADD php.ini /usr/local/etc/php/php.ini
+ADD php.ini /usr/local/lib/php.ini
 
-RUN pecl install xdebug-2.5.5
+RUN pecl install xdebug-2.2.7
 
-RUN echo -e "\nzend_extension=\"/usr/local/lib/php/extensions/no-debug-non-zts-20131226/xdebug.so\"" >> /usr/local/etc/php/php.ini
+RUN echo -e "\nzend_extension=\"/usr/local/lib/php/extensions/no-debug-non-zts-20090626/xdebug.so\"" >> /usr/local/lib/php.ini
 
 RUN service apache2 restart
 
