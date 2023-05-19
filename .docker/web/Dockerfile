@@ -1,39 +1,28 @@
-FROM centos:6.9
+FROM centos:7
 
-ADD php.ini /etc/php.ini
+# Install Apache
+RUN yum -y update
+RUN yum -y install httpd httpd-tools
 
-ENV PHP_VERSION 5.3.3
+# Install EPEL Repo
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+ && rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 
-# yumリポジトリの参照先をcentos:6.9のアーカイブに書き換える
-RUN sed -i "s|#baseurl=|baseurl=|g" /etc/yum.repos.d/CentOS-Base.repo \
-  && sed -i "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-Base.repo \
-  && sed -i "s|http://mirror\.centos\.org/centos/\$releasever|http://vault\.centos\.org/centos/6.9|g" /etc/yum.repos.d/CentOS-Base.repo
+# Install PHP 5.5
+RUN yum -y install php55w php55w-bcmath php55w-cli php55w-common php55w-gd php55w-intl php55w-ldap php55w-mbstring \
+    php55w-mcrypt php55w-mysql php55w-pdo php55w-pear php55w-soap php55w-xml php55w-xmlrpc php55w-devel
 
-RUN yum install -y \
-        php \
-        php-mbstring \
-        php-pgsql \
-        php-mysql \
-        php-gd \
-        zip \
-        unzip \
-        git \
-        httpd \
-        php-devel \
-        httpd-devel \
-        php-pear \
-        gcc && \
-    yum clean all
+# Install Xdebug v2.5.0
+RUN yum -y install php55w-pecl-xdebug
+RUN echo -e "\nzend_extension=\"/usr/lib64/php/modules/xdebug.so\"\n" >> /etc/php.ini
 
-# Xdebug install
-RUN pecl install xdebug-2.2.7
-RUN echo -e "\nzend_extension=\"/usr/lib64/php/modules/xdebug.so\"" >> /etc/php.ini
+COPY xdebug.ini /tmp
+WORKDIR /tmp
+RUN cat xdebug.ini >> /etc/php.ini
 
-# Composer install (use Makefile)
-COPY . /app
-WORKDIR /app
-RUN make /bin/composer
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 EXPOSE 80
 
-CMD ["/usr/sbin/apachectl","-DFOREGROUND"]
+CMD ["/usr/sbin/httpd","-DFOREGROUND"]
