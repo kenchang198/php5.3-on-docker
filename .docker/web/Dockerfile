@@ -29,11 +29,6 @@ RUN yum install -y \
 RUN pecl install xdebug-2.2.7
 RUN echo -e "\nzend_extension=\"/usr/lib64/php/modules/xdebug.so\"" >> /etc/php.ini
 
-# Composer install (use Makefile)
-COPY . /app
-WORKDIR /app
-RUN make /bin/composer
-
 EXPOSE 80
 
 CMD ["/usr/sbin/apachectl","-DFOREGROUND"]
